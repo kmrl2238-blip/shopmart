@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Tag } from 'lucide-react';
+import { TrendingUp, Tag, Grid3x3, Flame } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
 import { ProductCard } from '../components/ProductCard';
+import { CategoryCard } from '../components/CategoryCard';
+import { DealCard } from '../components/DealCard';
 import { supabase } from '../lib/supabase';
-import { Product, PriceData } from '../types';
+import { Product, PriceData, Category } from '../types';
 
 export function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [bestDeals, setBestDeals] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [priceDataMap, setPriceDataMap] = useState<Record<string, PriceData[]>>({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,14 +33,23 @@ export function Home() {
         .select('*')
         .eq('is_trending', true)
         .order('rating', { ascending: false })
-        .limit(100);
+        .limit(9);
+
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('*')
+        .order('product_count', { ascending: false });
 
       const { data: pricesData } = await supabase
         .from('price_data')
         .select('*');
 
       if (productsData) setProducts(productsData);
-      if (trendingData) setTrendingProducts(trendingData);
+      if (trendingData) {
+        setTrendingProducts(trendingData);
+        setBestDeals(trendingData.slice(0, 6));
+      }
+      if (categoriesData) setCategories(categoriesData);
 
       if (pricesData) {
         const priceMap: Record<string, PriceData[]> = {};
@@ -82,7 +95,7 @@ export function Home() {
             Find the Best Deals
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Compare prices across Amazon, Flipkart, and Myntra
+            Compare prices across Amazon, Flipkart, Myntra, Reliance Digital, and Croma
           </p>
           <div className="flex justify-center">
             <SearchBar onSearch={handleSearch} />
@@ -113,22 +126,65 @@ export function Home() {
           </div>
         ) : (
           <>
-            {!searchQuery && trendingProducts.length > 0 && (
-              <div className="mb-12">
-                <div className="flex items-center space-x-2 mb-6">
-                  <TrendingUp className="w-6 h-6 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900">Trending Products</h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {trendingProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      priceData={priceDataMap[product.id]}
-                    />
-                  ))}
-                </div>
-              </div>
+            {!searchQuery && (
+              <>
+                {categories.length > 0 && (
+                  <div className="mb-16">
+                    <div className="flex items-center space-x-2 mb-6">
+                      <Grid3x3 className="w-7 h-7 text-blue-600" />
+                      <h2 className="text-3xl font-bold text-gray-900">Popular Categories</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {categories.slice(0, 8).map((category) => (
+                        <CategoryCard
+                          key={category.id}
+                          category={category}
+                          onClick={() => handleSearch(category.name)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {bestDeals.length > 0 && (
+                  <div className="mb-16">
+                    <div className="flex items-center space-x-2 mb-6">
+                      <Flame className="w-7 h-7 text-orange-600" />
+                      <h2 className="text-3xl font-bold text-gray-900">Best Deals of the Day</h2>
+                      <div className="ml-auto bg-red-100 text-red-600 px-4 py-1 rounded-full text-sm font-semibold">
+                        Limited Time
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {bestDeals.map((product) => (
+                        <DealCard
+                          key={product.id}
+                          product={product}
+                          priceData={priceDataMap[product.id]}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {trendingProducts.length > 0 && (
+                  <div className="mb-12">
+                    <div className="flex items-center space-x-2 mb-6">
+                      <TrendingUp className="w-7 h-7 text-blue-600" />
+                      <h2 className="text-3xl font-bold text-gray-900">Trending Products</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {trendingProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          priceData={priceDataMap[product.id]}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             <div>

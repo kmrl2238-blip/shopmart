@@ -1,4 +1,4 @@
-import { ShoppingBag, Package } from 'lucide-react';
+import { ShoppingBag, Package, Store, Zap } from 'lucide-react';
 
 interface PlatformIconProps {
   platform: string;
@@ -10,6 +10,8 @@ export function PlatformIcon({ platform, className = "w-6 h-6" }: PlatformIconPr
     'Amazon': 'text-orange-500',
     'Flipkart': 'text-blue-600',
     'Myntra': 'text-pink-600',
+    'Reliance Digital': 'text-red-600',
+    'Croma': 'text-green-600',
   };
 
   const color = platformColors[platform] || 'text-gray-600';
@@ -19,7 +21,9 @@ export function PlatformIcon({ platform, className = "w-6 h-6" }: PlatformIconPr
       {platform === 'Amazon' && <ShoppingBag />}
       {platform === 'Flipkart' && <Package />}
       {platform === 'Myntra' && <ShoppingBag />}
-      {!['Amazon', 'Flipkart', 'Myntra'].includes(platform) && <Package />}
+      {platform === 'Reliance Digital' && <Zap />}
+      {platform === 'Croma' && <Store />}
+      {!['Amazon', 'Flipkart', 'Myntra', 'Reliance Digital', 'Croma'].includes(platform) && <Package />}
     </div>
   );
 }

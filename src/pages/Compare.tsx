@@ -103,6 +103,8 @@ export function Compare() {
     return sortOrder === 'asc' ? compareValue : -compareValue;
   });
 
+  const lowestPrice = priceData.length > 0 ? Math.min(...priceData.map(p => p.price)) : 0;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -192,42 +194,53 @@ export function Compare() {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {sortedPriceData.map((price) => (
-                          <tr key={price.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center space-x-2">
-                                <PlatformIcon platform={price.platform} />
-                                <span className="font-medium text-gray-900">{price.platform}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-lg font-bold text-green-600">
-                                ₹{price.price.toFixed(2)}
-                              </span>
-                            </td>
+                        {sortedPriceData.map((price) => {
+                          const isBestPrice = price.price === lowestPrice;
+                          return (
+                            <tr
+                              key={price.id}
+                              className={`hover:bg-gray-50 transition-colors ${isBestPrice ? 'bg-green-50' : ''}`}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center space-x-2">
+                                  <PlatformIcon platform={price.platform} />
+                                  <span className="font-medium text-gray-900">{price.platform}</span>
+                                  {isBestPrice && (
+                                    <span className="ml-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                                      Best Price
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`text-lg font-bold ${isBestPrice ? 'text-green-700' : 'text-green-600'}`}>
+                                  ₹{price.price.toLocaleString('en-IN')}
+                                </span>
+                              </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 {price.discount || 'N/A'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                              {price.delivery || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {price.url && (
-                                <a
-                                  href={price.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800"
-                                >
-                                  <span>Visit</span>
-                                  <ExternalLink className="w-4 h-4" />
-                                </a>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {price.delivery || 'N/A'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {price.url && (
+                                  <a
+                                    href={price.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800"
+                                  >
+                                    <span>Visit</span>
+                                    <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

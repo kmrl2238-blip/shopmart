@@ -51,3 +51,21 @@ export interface ProductWithPrices extends Product {
   price_history: PriceHistory[];
   reviews: Review[];
 }
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  description: string;
+  product_count: number;
+  created_at: string;
+}
+
+export interface ProductSpecification {
+  id: string;
+  product_id: string;
+  spec_key: string;
+  spec_value: string;
+  created_at: string;
+}
